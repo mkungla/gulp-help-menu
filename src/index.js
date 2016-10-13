@@ -134,6 +134,8 @@ class GulpHelpMenuBuilder {
 
     Object.keys(this.help_menu_entries).forEach(function (cmd) {
 
+      if(cmd === 'default') return;
+      
       command_display += chalk.bold.blue(`  ${cmd}`.rpad(' ',35));
       command_display += chalk.white(this.help_menu_entries[cmd].description) + '\n';
 
