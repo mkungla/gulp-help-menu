@@ -170,7 +170,7 @@ class GulpHelp {
     help_menu.getRegisteredGulpTasks(gulp);
 
     // Register Help Menu
-    gulp.task('help', help_menu.getHelpMenuDisplay());
+    gulp.task('help', () => {help_menu.getHelpMenuDisplay()});
 
   }
 }
