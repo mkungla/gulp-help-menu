@@ -2,42 +2,52 @@
 
 > Help menu for Gulp, Task descriptions and flags for gulp --task (-T), Help menu banner with info from your package.json.
 
-[![NPM version][npm-v-image]][npm-v-url] [![Downloads][npm-downloads-image]][npm-downloads-url] |
+[![NPM version][npm-v-image]][npm-v-url] [![Downloads][npm-downloads-image]][npm-downloads-url]
+
 ## Install
 
-```sh
+```
 $ npm install --save gulp-help-menu
 ```
+
 ## Usage
 
 
-```js
-// Add it to your gulpfile.js
-const gulp_help_menu  = require('gulp-help-menu');
+`package.json`
 
-// Set description [flags] for your tasks
-gulp.task('your-task', ['dep1','dep2','dep3'], function () {
-  /// ...
-});
-gulp.tasks['your-task'].description = 'This is gulp-help-menu example';
-gulp.tasks['your-task'].flags = {
-  '-d --dummy-flag': 'Thats one dummy flag'
-};
-
-
-gulp.task('another-task', ['dep1','dep2','dep3'], function () {
-  /// ...
-});
-gulp.tasks['another-task'].description = 'This is gulp-help-menu example';
-gulp.tasks['another-task'].flags = {
-  '-a --another-dummy-flag': 'Thats one dummy flag'
-};
-
-// At the end of your gulpfile.js add help task which is set by gulp-help-menu
-gulp.task('default', ['help']);
-gulp_help_menu.register(gulp);
+```
+"scripts": {
+  "help": "gulp -S help"
+},
 ```
 
+`gulpfile.js`
+
+```js
+// Example gulpfile.js
+const gulp = require("gulp");
+
+// Add it to your gulpfile.js
+const gulp_help_menu = require("gulp-help-menu");
+
+// Set description [flags] for your tasks
+const yourTask = async () => {};
+yourTask.description = "This is gulp-help-menu example";
+yourTask.flags = {
+  "-d --dummy-flag": "Thats one dummy flag"
+};
+gulp.task("your-task", yourTask);
+
+const anotherTask = async () => {};
+anotherTask.description = "This is gulp-help-menu example";
+anotherTask.flags = {
+  "-a --another-dummy-flag": "Thats one dummy flag"
+};
+gulp.task("another-task", anotherTask);
+
+// At the end of your gulpfile.js
+gulp_help_menu.register(gulp);
+```
 
 <!-- NPM version -->
 [npm-v-image]: https://img.shields.io/npm/v/gulp-help-menu.svg

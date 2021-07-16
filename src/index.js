@@ -1,24 +1,23 @@
-'use strict';
+"use strict";
 
-const chalk = require('chalk');
-const pkg = require('../../../package.json');
+const process = require("process");
+const chalk = require("chalk");
 
 class GulpHelpMenuBuilder {
-
   /**
    * GulpHelpMenuBuilder
    */
   constructor() {
     // HELP_MENU_ENTRIES will collect stuff we need from tasks to create help menu
-    this.help_menu_entries = {}
+    this.help_menu_entries = {};
 
     if (!String.prototype.lpad) {
       String.prototype.lpad = function(pad, len) {
         while (pad.length < len) {
           pad += pad;
         }
-        return pad.substr(0, len-this.length) + this;
-      }
+        return pad.substr(0, len - this.length) + this;
+      };
     }
 
     if (!String.prototype.rpad) {
@@ -26,22 +25,8 @@ class GulpHelpMenuBuilder {
         while (pad.length < len) {
           pad += pad;
         }
-        return this + pad.substr(0, len-this.length);
-      }
-    }
-  }
-
-  /**
-   * Add Symbol.iterator to Gulp tasks
-   *
-   * @param gulp
-   */
-  addIterator(gulp) {
-    gulp.tasks[Symbol.iterator] = function*() {
-      let properties = Object.keys(this);
-      for (let i of properties) {
-        yield [i, this[i]];
-      }
+        return this + pad.substr(0, len - this.length);
+      };
     }
   }
 
@@ -51,21 +36,21 @@ class GulpHelpMenuBuilder {
    * @param gulp
    */
   getRegisteredGulpTasks(gulp) {
-    for (let [name, task] of gulp.tasks) {
+    const tasks = gulp.registry().tasks();
+    for (const name in tasks) {
+      const task = tasks[name].unwrap();
       this.help_menu_entries[name] = {};
-      this.help_menu_entries[name].dep = task.dep;
+      this.help_menu_entries[name].dep = tasks[name].dep;
+      this.help_menu_entries[name].description = "";
+      this.help_menu_entries[name].flags = {};
 
       // Get description
-      this.help_menu_entries[name].description = '';
-      if (task.hasOwnProperty('description')) {
-        gulp.tasks[name].fn.description = task.description;
+      if (task.hasOwnProperty("description")) {
         this.help_menu_entries[name].description = task.description;
       }
 
       // Get flags
-      this.help_menu_entries[name].flags = {};
-      if (task.hasOwnProperty('flags')) {
-        gulp.tasks[name].fn.flags = task.flags;
+      if (task.hasOwnProperty("flags")) {
         this.help_menu_entries[name].flags = task.flags;
       }
     }
@@ -76,15 +61,21 @@ class GulpHelpMenuBuilder {
    *
    */
   getHelpMenuDisplay() {
-    let display = chalk.dim.gray('|==============================================================|\n');
+    let display = chalk.dim.gray(
+      "|==============================================================|\n"
+    );
     // print  banner
     display += this.getBanner();
-    display += chalk.dim.gray('\n|==============================================================|\n');
+    display += chalk.dim.gray(
+      "\n|==============================================================|\n"
+    );
 
     // print all commands
     display += this.getCommandsDisplay();
 
-    display += chalk.dim.gray('\n|==============================================================|\n');
+    display += chalk.dim.gray(
+      "\n|==============================================================|\n"
+    );
     console.log(display);
   }
 
@@ -95,28 +86,32 @@ class GulpHelpMenuBuilder {
    */
   getBanner() {
     let banner;
-    banner = chalk.bold('  ' + `${pkg.name}`) + chalk.dim.italic(` v:`) + chalk.bold.yellow(`${pkg.version}\n`);
+    banner =
+      chalk.bold("  " + `${process.env.npm_package_name}`) +
+      chalk.dim.italic(` v`) +
+      chalk.bold.yellow(`${process.env.npm_package_version}\n`);
+
     // Author
-    if ('author' in pkg){
-      banner += chalk.dim.green(`  by ${pkg.author}`);
+    if ("npm_package_author_name" in process.env) {
+      banner += chalk.dim.green(`  by ${process.env.npm_package_author_name}`);
     }
-    banner += '\n';
+    banner += "\n";
 
     // Homepage
-    if ('homepage' in pkg){
-      banner += chalk.dim.yellow(`  ${pkg.homepage}\n`);
+    if ("npm_package_homepage" in process.env) {
+      banner += chalk.dim.yellow(`  ${process.env.npm_package_homepage}\n`);
     }
 
     // License
-    if ('license' in pkg){
-      banner += chalk.dim(`  ${pkg.license} license \n`);
+    if ("npm_package_license" in process.env) {
+      banner += chalk.dim(`  ${process.env.npm_package_license} license \n`);
     }
 
-    banner += '\n';
+    banner += "\n";
 
     // Description
-    if ('description' in pkg){
-      banner += chalk.dim(`      ${pkg.description}\n`);
+    if ("npm_package_description" in process.env) {
+      banner += chalk.dim(`      ${process.env.npm_package_description}\n`);
     }
 
     return banner;
@@ -127,26 +122,23 @@ class GulpHelpMenuBuilder {
    *
    * @returns {*}
    */
-  getCommandsDisplay(){
+  getCommandsDisplay() {
     let command_display;
-    command_display = chalk.bold('  List of Main Commands\n');
-    command_display += chalk.italic('    usage: gulp <task> [options]\n\n');
+    command_display = chalk.bold("  List of Main Commands\n");
+    command_display += chalk.italic("    usage: gulp <task> [options]\n\n");
 
-    Object.keys(this.help_menu_entries).forEach(function (cmd) {
+    Object.keys(this.help_menu_entries).forEach(function(cmd) {
+      if (cmd === "default") return;
 
-      if(cmd === 'default') return;
-      
-      command_display += chalk.bold.blue(`  ${cmd}`.rpad(' ',35));
-      command_display += chalk.white(this.help_menu_entries[cmd].description) + '\n';
+      command_display += chalk.bold.yellow(`  ${cmd}`.rpad(" ", 35));
+      command_display +=
+        chalk.white(this.help_menu_entries[cmd].description) + "\n";
 
-      Object.keys(this.help_menu_entries[cmd].flags).forEach(function (opt) {
-
-        command_display += chalk.blue(`       ${opt}`.rpad(' ',35));
-        command_display += chalk.dim(this.help_menu_entries[cmd].flags[opt]) + '\n';
-
+      Object.keys(this.help_menu_entries[cmd].flags).forEach(function(opt) {
+        command_display += chalk.cyan(`       ${opt}`.rpad(" ", 35));
+        command_display +=
+          chalk.dim(this.help_menu_entries[cmd].flags[opt]) + "\n";
       }, this);
-
-
     }, this);
 
     return command_display;
@@ -159,19 +151,23 @@ class GulpHelp {
   }
 
   register(gulp) {
-
     // Only stuff we need to add
     let help_menu = new GulpHelpMenuBuilder(gulp);
-
-    // Add iterator Gulp Tasks
-    help_menu.addIterator(gulp);
 
     // Loop trough registered Gulp Tasks
     help_menu.getRegisteredGulpTasks(gulp);
 
+    let names = ["help"];
+    if (!gulp.registry().get("default")) {
+      names.push("default");
+    }
     // Register Help Menu
-    gulp.task('help', () => {help_menu.getHelpMenuDisplay()});
-
+    gulp.task("help", async () => {
+      help_menu.getHelpMenuDisplay();
+    });
+    gulp.task("default", async () => {
+      help_menu.getHelpMenuDisplay();
+    });
   }
 }
 
