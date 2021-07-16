@@ -1,8 +1,31 @@
 # gulp-help-menu
 
-> Help menu for Gulp, Task descriptions and flags for gulp --task (-T), Help menu banner with info from your package.json.
+Help menu for Gulp, Drop in cleaner replacement for task descriptions and flags  
+for `gulp --task (-T)`. It gets help menu banner info from your package.json.
 
 [![NPM version][npm-v-image]][npm-v-url] [![Downloads][npm-downloads-image]][npm-downloads-url]
+
+```
+$ npm run help
+
+|==============================================================|
+  demo v1.0.0
+  by Marko Kungla
+  ISC license 
+
+      Demo of gulp-help-menu
+
+|==============================================================|
+  List of Main Commands
+    usage: gulp <task> [options]
+
+  your-task                        This is gulp-help-menu example
+       -d --dummy-flag             Thats one dummy flag
+  another-task                     This is gulp-help-menu example
+       -a --another-dummy-flag     Thats one dummy flag
+
+|==============================================================|
+```
 
 ## Install
 
